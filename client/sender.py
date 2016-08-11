@@ -1,5 +1,4 @@
 #coding=utf-8
-# import urllib.request
 import requests
 
 url = 'http://localhost:8000'
