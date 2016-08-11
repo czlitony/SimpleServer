@@ -24,7 +24,7 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        # logging.info(self.headers)
+        logging.error(self.headers)
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
