@@ -130,7 +130,7 @@
   </licensingData>
 </licensing>
   <type value="Appliance"/>
-  <config>sdfasdf
+  <config>
     <timestamp value="2016-08-12 01:21:34"/>
     <fips value="false"/>
     <resourceGroup value="3"/>
