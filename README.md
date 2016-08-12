@@ -18,12 +18,9 @@ python sender.py
 ```
 
 You can modify the file depending on your requirements.
-### curl
+### curl 
 To upload a file, use curl: curl -F file=@file_path/file_name server_url
 for example
 ```
 curl -F file=@/home/tony/SimpleServer/client/phone_home_data.xml http://localhost:8000
 ```
-
-
-

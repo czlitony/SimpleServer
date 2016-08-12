@@ -60,6 +60,15 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         except Exception,e:  
             print 'The file "'+ fn +'" is not a well-formed XML file'  
             print 'The reason may be：',e
+
+    def parse_subnode(self, data, root, subnode):
+        elem = root.find(subnode)
+        if elem is not None:
+            if subnode == 'type':
+                data[elem.tag] = elem.attrib['value']
+            else:
+                for n in list(elem):
+                    data[n.tag] = n.attrib['value']
     
     def parse(self, fileitem):
         fn = os.path.basename(fileitem.filename)
@@ -67,18 +76,21 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         data = collections.OrderedDict(data)
         tree = ET.ElementTree(file=fileitem.filename)
         root = tree.getroot()
-        config = root.find('config')
-        if config is None:
-            print "config not found, or config has no subelements"
-        else:
-            for elem in list(config):
-                data[elem.tag] = elem.attrib['value']
-        runtime = root.find('runtime')
-        if runtime is None:
-            print "runtime not found, or runtime has no subelements"
-        else:
-            for elem in list(runtime):
-                data[elem.tag] = elem.attrib['value']
+        self.parse_subnode(data, root, 'type')
+        self.parse_subnode(data, root, 'config')
+        self.parse_subnode(data, root, 'runtime')
+        # config = root.find('config')
+        # if config is None:
+        #     print "config not found, or config has no subelements"
+        # else:
+        #     for elem in list(config):
+        #         data[elem.tag] = elem.attrib['value']
+        # runtime = root.find('runtime')
+        # if runtime is None:
+        #     print "runtime not found, or runtime has no subelements"
+        # else:
+        #     for elem in list(runtime):
+        #         data[elem.tag] = elem.attrib['value']
 
         # dump parsed data to phone_home_data.json file
         jsonfile = fn.split('.')[0]+'.json'
