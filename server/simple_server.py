@@ -24,14 +24,14 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
     def do_POST(self):
-        logging.error(self.headers)
+        # logging.error(self.headers)
         form = cgi.FieldStorage(
             fp=self.rfile,
             headers=self.headers,
             environ={'REQUEST_METHOD':'POST',
                      'CONTENT_TYPE':self.headers['Content-Type'],
                      })
-
+        
         # A nested FieldStorage instance holds the file
         fileitem = form['file']
         # Test if the file was uploaded
@@ -43,40 +43,48 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
             print 'The file "' + fn + '" was received successfully'
             
             # check if the received xml file is well-formed
-            try:  
-                ET.parse(fileitem.filename)  
-                print 'The file "'+ fn +'" is a well-formed XML file'  
-            except Exception,e:  
-                print 'The file "'+ fn +'" is not a well-formed XML file'  
-                print 'The reason may be：',e
+            self.check(fileitem)
 
             # parse the xml file into a json file
-            data = {}
-            data = collections.OrderedDict(data)
-            tree = ET.ElementTree(file=fileitem.filename)
-            root = tree.getroot()
-            config = root.find('config')
-            if config is None:
-                print "config not found, or config has no subelements"
-            else:
-                for elem in list(config):
-                    data[elem.tag] = elem.attrib['value']
-            runtime = root.find('runtime')
-            if runtime is None:
-                print "runtime not found, or runtime has no subelements"
-            else:
-                for elem in list(runtime):
-                    data[elem.tag] = elem.attrib['value']
-
-            # dump parsed data to phone_home_data.json file
-            jsonfile = fileitem.filename.split('.')[0]+'.json'
-            with open(jsonfile, 'w') as f:
-                json.dump(data, f, indent=4)
-            print 'The file "'+ fn +'" was parsed successfully into file "'+jsonfile+'"'
+            self.parse(fileitem)
         else:
             print 'No file was uploaded'
 
         SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
+        
+    def check(self, fileitem):
+        fn = os.path.basename(fileitem.filename)
+        try:  
+            ET.parse(fileitem.filename)  
+            print 'The file "'+ fn +'" is a well-formed XML file'  
+        except Exception,e:  
+            print 'The file "'+ fn +'" is not a well-formed XML file'  
+            print 'The reason may be：',e
+    
+    def parse(self, fileitem):
+        fn = os.path.basename(fileitem.filename)
+        data = {}
+        data = collections.OrderedDict(data)
+        tree = ET.ElementTree(file=fileitem.filename)
+        root = tree.getroot()
+        config = root.find('config')
+        if config is None:
+            print "config not found, or config has no subelements"
+        else:
+            for elem in list(config):
+                data[elem.tag] = elem.attrib['value']
+        runtime = root.find('runtime')
+        if runtime is None:
+            print "runtime not found, or runtime has no subelements"
+        else:
+            for elem in list(runtime):
+                data[elem.tag] = elem.attrib['value']
+
+        # dump parsed data to phone_home_data.json file
+        jsonfile = fn.split('.')[0]+'.json'
+        with open(jsonfile, 'w') as f:
+            json.dump(data, f, indent=4)
+        print 'The file "'+ fn +'" was parsed successfully into file "'+jsonfile+'"'
 
 Handler = ServerHandler
 
