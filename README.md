@@ -5,7 +5,7 @@ Both server and client python scripts works well on python2.7 .
 ## server
 Run the command:
 ```
-python simples_server.py
+python simple_server.py
 ```
 The server will listen at port 8000, you can open your web browser and visit <http://localhost:8000>.
 When the server receives the file, it will save the file at the same folder with the file SimpleServer.py .
