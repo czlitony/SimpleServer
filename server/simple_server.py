@@ -1,6 +1,8 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import BaseHTTPServer
+# import ssl
 import SimpleHTTPServer
 import SocketServer
 import logging
@@ -79,18 +81,6 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         self.parse_subnode(data, root, 'type')
         self.parse_subnode(data, root, 'config')
         self.parse_subnode(data, root, 'runtime')
-        # config = root.find('config')
-        # if config is None:
-        #     print "config not found, or config has no subelements"
-        # else:
-        #     for elem in list(config):
-        #         data[elem.tag] = elem.attrib['value']
-        # runtime = root.find('runtime')
-        # if runtime is None:
-        #     print "runtime not found, or runtime has no subelements"
-        # else:
-        #     for elem in list(runtime):
-        #         data[elem.tag] = elem.attrib['value']
 
         # dump parsed data to phone_home_data.json file
         jsonfile = fn.split('.')[0]+'.json'
@@ -99,8 +89,11 @@ class ServerHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
         print 'The file "'+ fn +'" was parsed successfully into file "'+jsonfile+'"'
 
 Handler = ServerHandler
-
 httpd = SocketServer.TCPServer(("", PORT), Handler)
+
+# //https
+# httpd = BaseHTTPServer.HTTPServer(('localhost', PORT), SimpleHTTPServer.SimpleHTTPRequestHandler)
+# httpd.socket = ssl.wrap_socket (httpd.socket, certfile='./server.pem', server_side=True)
 
 print "serving at port", PORT
 httpd.serve_forever()
